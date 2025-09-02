@@ -173,104 +173,62 @@ def render_summary():
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown("### Treatment Progress")
+        # Treatment Progress Card
         current_infusion = st.session_state.patient_data['infusions'][0]['number']
         
-        st.markdown(f"""
-        <div class="card">
-            <div style="font-size: 2rem; font-weight: bold; color: #2563eb; margin-bottom: 0.5rem;">
-                Infusion {current_infusion} of ~18-24*
-            </div>
-            <div style="font-size: 0.875rem; color: #6b7280;">
-                *Treatment duration varies based on amyloid reduction
-            </div>
+        st.subheader("Treatment Progress")
+        with st.container():
+            st.markdown(f"## Infusion {current_infusion} of ~18-24*")
+            st.caption("*Treatment duration varies based on amyloid reduction")
             
-            <div class="dosing-schedule">
-                <h4 style="margin-bottom: 0.5rem;">Dosing Schedule</h4>
-                <div style="font-size: 0.875rem;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
-                        <span>Dose 1:</span> <span style="font-weight: bold;">350 mg</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
-                        <span>Dose 2:</span> <span style="font-weight: bold;">700 mg</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
-                        <span>Dose 3:</span> <span style="font-weight: bold;">1050 mg</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between;">
-                        <span>Maintenance:</span> <span style="font-weight: bold;">1400 mg Q4W</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+            st.markdown("**Dosing Schedule**")
+            dosing_data = {
+                "Dose": ["Dose 1", "Dose 2", "Dose 3", "Maintenance"],
+                "Amount": ["350 mg", "700 mg", "1050 mg", "1400 mg Q4W"]
+            }
+            st.table(pd.DataFrame(dosing_data))
         
-        st.markdown("### CMS Registry")
-        st.markdown(f"""
-        <div class="card">
-            <div style="text-align: center; font-size: 1.5rem; font-weight: bold; padding: 1rem; background: #f8fafc; border-radius: 0.5rem; margin-bottom: 1rem;">
-                {st.session_state.patient_data['cms_registry']}
-            </div>
+        # CMS Registry Card
+        st.subheader("CMS Registry")
+        with st.container():
+            st.markdown(f"### {st.session_state.patient_data['cms_registry']}")
             
-            <h4 style="margin-bottom: 0.5rem;">ApoE ε4 Status</h4>
-            <div style="padding: 0.5rem; background: #f8fafc; border-radius: 0.5rem; margin-bottom: 0.5rem;">
-                {st.session_state.patient_data['apoe4_status']}
-            </div>
-            <div class="risk-high">High Risk</div>
-            <div style="font-size: 0.875rem; color: #dc2626;">Two copies of ApoE ε4 allele</div>
-        </div>
-        """, unsafe_allow_html=True)
+            st.markdown("**ApoE ε4 Status**")
+            st.info(st.session_state.patient_data['apoe4_status'])
+            st.error("**High Risk** - Two copies of ApoE ε4 allele")
     
     with col2:
-        st.markdown("### Latest MRI Status")
+        # Latest MRI Status Card
+        st.subheader("Latest MRI Status")
         latest_mri = st.session_state.patient_data['mri_tracking'][0]
         
-        st.markdown(f"""
-        <div class="card">
-            <div style="margin-bottom: 0.5rem;"><span style="font-weight: bold;">Date:</span> {latest_mri['date']}</div>
-            <div style="margin-bottom: 0.5rem;">
-                <span style="font-weight: bold;">MRI Type:</span>
-                <span style="background: #fce7f3; color: #be185d; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; margin-left: 0.5rem;">
-                    {latest_mri['type']}
-                </span>
-            </div>
-            <div><span style="font-weight: bold;">Notes:</span> {latest_mri['notes'] or 'No notes'}</div>
-        </div>
-        """, unsafe_allow_html=True)
+        with st.container():
+            st.write(f"**Date:** {latest_mri['date']}")
+            st.write(f"**MRI Type:** {latest_mri['type']}")
+            st.write(f"**Notes:** {latest_mri['notes'] or 'No notes'}")
         
-        st.markdown("### ARIA Risk Assessment")
-        st.markdown(f"""
-        <div class="card">
-            <div style="display: flex; align-items: center; margin-bottom: 1rem;">
-                <span style="color: #ef4444; margin-right: 0.5rem;">⚠️</span>
-                <span style="font-size: 1.125rem; font-weight: bold;">ARIA Risk Assessment</span>
-            </div>
+        # ARIA Risk Assessment Card  
+        st.subheader("⚠️ ARIA Risk Assessment")
+        
+        with st.container():
+            st.markdown("**Overall ARIA Risk**")
+            st.markdown(f"# {st.session_state.patient_data['overall_aria_risk']}")
+            st.caption("Total ARIA incidence rate")
             
-            <div style="margin-bottom: 1rem;">
-                <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">Overall ARIA Risk</div>
-                <div style="font-size: 3rem; font-weight: bold; color: #111827;">{st.session_state.patient_data['overall_aria_risk']}</div>
-                <div style="font-size: 0.875rem; color: #6b7280;">Total ARIA incidence rate</div>
-            </div>
+            st.markdown("---")
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
-                <div>
-                    <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">Symptomatic ARIA</div>
-                    <div style="font-size: 1.25rem; font-weight: bold;">{st.session_state.patient_data['symptomatic_aria']}</div>
-                </div>
-                <div>
-                    <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">Serious Events</div>
-                    <div style="font-size: 1.25rem; font-weight: bold;">{st.session_state.patient_data['serious_events']}</div>
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+            col_a, col_b = st.columns(2)
+            with col_a:
+                st.metric("Symptomatic ARIA", st.session_state.patient_data['symptomatic_aria'])
+            with col_b:
+                st.metric("Serious Events", st.session_state.patient_data['serious_events'])
 
 def render_infusions():
     """Render the infusions tab"""
     col1, col2 = st.columns([3, 1])
     
     with col1:
-        st.markdown("### Infusion History")
+        st.subheader("Infusion History")
     
     with col2:
         if st.button("➕ Add New Infusion", type="primary"):
@@ -278,40 +236,28 @@ def render_infusions():
     
     # Display infusions
     for infusion in st.session_state.patient_data['infusions']:
-        st.markdown(f"""
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                <div style="display: flex; align-items: center;">
-                    <div class="infusion-number">#{infusion['number']}</div>
-                    <div style="margin-left: 0.75rem;">
-                        <div style="font-weight: bold;">Infusion {infusion['number']}</div>
-                        <div style="font-size: 0.875rem; color: #6b7280;">{infusion['date']}</div>
-                    </div>
-                </div>
-                <div style="display: flex; align-items: center;">
-                    <span class="completed-badge">✓ Completed</span>
-                    <span style="margin-left: 0.5rem; color: #9ca3af; cursor: pointer;">✏️</span>
-                </div>
-            </div>
+        with st.container():
+            col1, col2 = st.columns([3, 1])
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; font-size: 0.875rem;">
-                <div>
-                    <span style="color: #6b7280;">Dose:</span>
-                    <span style="margin-left: 0.25rem; font-weight: bold;">{infusion['dose']} mg</span>
-                </div>
-                <div>
-                    <span style="color: #6b7280;">Volume:</span>
-                    <span style="margin-left: 0.25rem; font-weight: bold;">{infusion['volume']} mL</span>
-                </div>
-                <div>
-                    <span style="color: #6b7280;">Duration:</span>
-                    <span style="margin-left: 0.25rem; font-weight: bold;">~30 min</span>
-                </div>
-            </div>
+            with col1:
+                st.write(f"**#{infusion['number']} - Infusion {infusion['number']}**")
+                st.caption(f"Date: {infusion['date']}")
+                
+                col_a, col_b, col_c = st.columns(3)
+                with col_a:
+                    st.write(f"**Dose:** {infusion['dose']} mg")
+                with col_b:
+                    st.write(f"**Volume:** {infusion['volume']} mL") 
+                with col_c:
+                    st.write(f"**Duration:** ~30 min")
+                
+                if infusion['notes']:
+                    st.write(f"**Notes:** {infusion['notes']}")
             
-            {f'<div style="margin-top: 0.5rem; font-size: 0.875rem;"><span style="color: #6b7280;">Notes:</span> <span style="margin-left: 0.25rem;">{infusion["notes"]}</span></div>' if infusion['notes'] else ''}
-        </div>
-        """, unsafe_allow_html=True)
+            with col2:
+                st.success("✓ Completed")
+            
+            st.divider()
     
     # Add infusion modal
     if st.session_state.get('show_add_infusion', False):
@@ -363,50 +309,29 @@ def render_mri_tracking():
     col1, col2 = st.columns([3, 1])
     
     with col1:
-        st.markdown("### MRI Tracking")
+        st.subheader("MRI Tracking")
     
     with col2:
         if st.button("➕ Add MRI Tracking", type="primary"):
             st.session_state.show_add_mri = True
     
     # MRI Schedule Reminder
-    st.markdown("""
-    <div class="aria-warning">
-        <div style="display: flex; align-items: center;">
-            <span style="color: #f59e0b; margin-right: 0.5rem;">⚠️</span>
-            <div>
-                <div style="font-weight: bold; color: #92400e;">MRI Schedule Reminder</div>
-                <div style="font-size: 0.875rem; color: #92400e;">
-                    Required: Baseline + before infusions 2, 3, 4, and 7. Enhanced vigilance during first 24 weeks.
-                </div>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.warning("⚠️ **MRI Schedule Reminder:** Required: Baseline + before infusions 2, 3, 4, and 7. Enhanced vigilance during first 24 weeks.")
     
     # Display MRI records
     for mri in st.session_state.patient_data['mri_tracking']:
-        st.markdown(f"""
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                <div>
-                    <div style="font-weight: bold;">Date: {mri['date']}</div>
-                    <div style="display: flex; align-items: center; margin-top: 0.25rem;">
-                        <span style="font-size: 0.875rem; color: #6b7280; margin-right: 0.5rem;">MRI Type:</span>
-                        <span style="background: #fce7f3; color: #be185d; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem;">
-                            {mri['type']}
-                        </span>
-                    </div>
-                </div>
-                <span style="color: #9ca3af; cursor: pointer;">✏️</span>
-            </div>
+        with st.container():
+            col1, col2 = st.columns([4, 1])
             
-            <div style="font-size: 0.875rem;">
-                <span style="color: #6b7280;">Radiologist Notes:</span>
-                <span style="margin-left: 0.25rem;">{mri['notes']}</span>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+            with col1:
+                st.write(f"**Date:** {mri['date']}")
+                st.write(f"**MRI Type:** {mri['type']}")
+                st.write(f"**Radiologist Notes:** {mri['notes']}")
+            
+            with col2:
+                st.button("✏️", key=f"edit_mri_{mri['id']}")
+            
+            st.divider()
     
     # Add MRI modal
     if st.session_state.get('show_add_mri', False):
@@ -451,7 +376,7 @@ def render_aria_monitoring():
     col1, col2 = st.columns([3, 1])
     
     with col1:
-        st.markdown("### ARIA Monitoring")
+        st.subheader("ARIA Monitoring")
     
     with col2:
         if st.button("➕ Add New ARIA Monitoring", type="primary"):
@@ -459,51 +384,37 @@ def render_aria_monitoring():
     
     # Display ARIA assessments
     for assessment in st.session_state.patient_data['aria_assessments']:
-        # Build symptoms HTML separately to avoid nested f-string issues
-        symptoms_html = ""
-        if assessment['symptoms']:
-            symptom_badges = "".join([
-                f'<span style="background: #fecaca; color: #991b1b; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; margin-right: 0.5rem;">{symptom}</span>'
-                for symptom in assessment["symptoms"]
-            ])
-            symptoms_html = f'<div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;"><h4 style="font-weight: bold; margin-bottom: 0.5rem;">Symptoms Present</h4><div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">{symptom_badges}</div></div>'
-        
-        st.markdown(f"""
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <div style="font-weight: bold;">{assessment['date']}</div>
-                <span style="color: #9ca3af; cursor: pointer;">✏️</span>
-            </div>
+        with st.container():
+            col1, col2 = st.columns([4, 1])
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                <div>
-                    <h4 style="font-weight: bold; margin-bottom: 0.5rem;">ARIA-E Assessment</h4>
-                    <div style="font-size: 0.875rem;">
-                        <div style="margin-bottom: 0.25rem;">
-                            <span style="color: #6b7280;">FLAIR Hyperintensity Severity:</span> {assessment['aria_e']['flair_severity']}
-                        </div>
-                        <div>
-                            <span style="color: #6b7280;">Overall Clinical Severity:</span> {assessment['aria_e']['clinical_severity']}
-                        </div>
-                    </div>
-                </div>
+            with col1:
+                st.write(f"**Assessment Date:** {assessment['date']}")
                 
-                <div>
-                    <h4 style="font-weight: bold; margin-bottom: 0.5rem;">ARIA-H Assessment</h4>
-                    <div style="font-size: 0.875rem;">
-                        <div style="margin-bottom: 0.25rem;">
-                            <span style="color: #6b7280;">Microhemorrhages:</span> {assessment['aria_h']['microhemorrhages']}
-                        </div>
-                        <div>
-                            <span style="color: #6b7280;">Siderosis:</span> {assessment['aria_h']['siderosis']}
-                        </div>
-                    </div>
-                </div>
-            </div>
+                col_a, col_b = st.columns(2)
+                
+                with col_a:
+                    st.write("**ARIA-E Assessment**")
+                    st.write(f"FLAIR Hyperintensity Severity: {assessment['aria_e']['flair_severity']}")
+                    st.write(f"Overall Clinical Severity: {assessment['aria_e']['clinical_severity']}")
+                
+                with col_b:
+                    st.write("**ARIA-H Assessment**") 
+                    st.write(f"Microhemorrhages: {assessment['aria_h']['microhemorrhages']}")
+                    st.write(f"Siderosis: {assessment['aria_h']['siderosis']}")
+                
+                # Display symptoms if present
+                if assessment['symptoms']:
+                    st.write("**Symptoms Present:**")
+                    # Create columns for symptoms display
+                    symptom_cols = st.columns(len(assessment['symptoms']))
+                    for idx, symptom in enumerate(assessment['symptoms']):
+                        with symptom_cols[idx]:
+                            st.error(symptom)
             
-            {symptoms_html}
-        </div>
-        """, unsafe_allow_html=True)
+            with col2:
+                st.button("✏️", key=f"edit_aria_{assessment['id']}")
+            
+            st.divider()
     
     # Add ARIA modal
     if st.session_state.get('show_add_aria', False):
