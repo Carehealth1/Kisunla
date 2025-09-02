@@ -459,6 +459,15 @@ def render_aria_monitoring():
     
     # Display ARIA assessments
     for assessment in st.session_state.patient_data['aria_assessments']:
+        # Build symptoms HTML separately to avoid nested f-string issues
+        symptoms_html = ""
+        if assessment['symptoms']:
+            symptom_badges = "".join([
+                f'<span style="background: #fecaca; color: #991b1b; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; margin-right: 0.5rem;">{symptom}</span>'
+                for symptom in assessment["symptoms"]
+            ])
+            symptoms_html = f'<div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;"><h4 style="font-weight: bold; margin-bottom: 0.5rem;">Symptoms Present</h4><div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">{symptom_badges}</div></div>'
+        
         st.markdown(f"""
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
@@ -492,7 +501,7 @@ def render_aria_monitoring():
                 </div>
             </div>
             
-            {f'<div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;"><h4 style="font-weight: bold; margin-bottom: 0.5rem;">Symptoms Present</h4><div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">{"".join([f\'<span style="background: #fecaca; color: #991b1b; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem;">{symptom}</span>\' for symptom in assessment["symptoms"]])}</div></div>' if assessment['symptoms'] else ''}
+            {symptoms_html}
         </div>
         """, unsafe_allow_html=True)
     
