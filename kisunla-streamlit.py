@@ -265,14 +265,33 @@ def render_add_infusion_modal():
     with st.form("add_infusion_form"):
         col1, col2 = st.columns(2)
         
+        # Calculate next infusion number based on existing records
+        if st.session_state.patient_data['infusions']:
+            existing_numbers = [inf['number'] for inf in st.session_state.patient_data['infusions']]
+            next_infusion_number = max(existing_numbers) + 1
+        else:
+            next_infusion_number = 1
+        
         with col1:
-            infusion_number = st.number_input("Infusion Number", min_value=1, value=22)
+            infusion_number = st.number_input("Infusion Number", min_value=1, value=next_infusion_number)
             infusion_date = st.date_input("Infusion Date", value=date.today())
         
         with col2:
-            # Calculate dose automatically
+            # Calculate dose automatically and reactively
             calculated_dose = calculate_kisunla_dose(infusion_number)
-            st.success(f"Calculated Dose: {calculated_dose} mg")
+            calculated_volume = calculate_volume(calculated_dose)
+            
+            # Show dosing phase information
+            if infusion_number == 1:
+                st.success(f"**Dose 1 (Titration):** {calculated_dose} mg")
+            elif infusion_number == 2:
+                st.success(f"**Dose 2 (Titration):** {calculated_dose} mg")
+            elif infusion_number == 3:
+                st.success(f"**Dose 3 (Titration):** {calculated_dose} mg")
+            else:
+                st.success(f"**Maintenance Dose:** {calculated_dose} mg")
+            
+            st.info(f"Volume: {calculated_volume} mL")
             
             notes = st.text_area("Notes", placeholder="infusion")
         
@@ -282,22 +301,20 @@ def render_add_infusion_modal():
             if st.form_submit_button("Save Infusion", type="primary"):
                 # Add new infusion
                 new_infusion = {
-                    'id': max([inf['id'] for inf in st.session_state.patient_data['infusions']]) + 1,
+                    'id': len(st.session_state.patient_data['infusions']) + 1,
                     'number': infusion_number,
                     'date': infusion_date.strftime('%Y-%m-%d'),
                     'dose': calculated_dose,
-                    'volume': calculate_volume(calculated_dose),
+                    'volume': calculated_volume,
                     'status': 'completed',
                     'notes': notes
                 }
                 
                 st.session_state.patient_data['infusions'].insert(0, new_infusion)
-                st.session_state.show_add_infusion = False
                 st.rerun()
         
         with col2:
             if st.form_submit_button("Cancel"):
-                st.session_state.show_add_infusion = False
                 st.rerun()
 
 def render_mri_tracking():
